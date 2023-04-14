@@ -58,7 +58,7 @@ const handleUserLogin = (email: string, password: string) => {
   })
 }
 
-const handleUserRegister = (fullName: string, email: string, password: string, roleId: number = 1) => {
+const handleUserRegister = (fullName: string, email: string, password: string, roleId = 1) => {
   return new Promise(async (resolve, reject) => {
     try {
       const userData: UserData = {
@@ -80,19 +80,19 @@ const handleUserRegister = (fullName: string, email: string, password: string, r
         fullName: fullName,
         email: email,
         password: password,
-        roleId: roleId
+        roleId: roleId,
       }
       await db.User.create(newUser)
-          .then(() => {
-            userData.code = codeApi.CODE_OK
-            userData.message = `Đăng ký thành công`
-            userData.body = true
-          })
-          .catch((error) => {
-            console.log('Error saving user', error)
-            userData.code = codeApi.CODE_FAIL
-            userData.message = `Đăng ký thất bại`
-          })
+        .then(() => {
+          userData.code = codeApi.CODE_OK
+          userData.message = `Đăng ký thành công`
+          userData.body = true
+        })
+        .catch((error) => {
+          console.log('Error saving user', error)
+          userData.code = codeApi.CODE_FAIL
+          userData.message = `Đăng ký thất bại`
+        })
       resolve(userData)
     } catch (e) {
       reject(e)
@@ -104,8 +104,8 @@ const checkUserEmail = (email: string): Promise<boolean> => {
   return new Promise(async (resolve, reject) => {
     try {
       const user = await db.User.findOne({
-        where: {email: email}
-      });
+        where: { email: email },
+      })
       if (user) {
         resolve(true)
       } else {
