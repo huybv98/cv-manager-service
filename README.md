@@ -3,5 +3,5 @@ use :
 - Nodejs
 - Expressjs
 - Typescript
-- MongoDB
+- mySQL(sequelize)
 - swagger
