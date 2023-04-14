@@ -21,12 +21,11 @@ const handleUserLogin = (email: string, password: string) => {
       }
       const user = await db.User.findOne({
         where: { email: email },
-        attributes: ['email', 'roleId', 'password'],
+        attributes: ['email', 'roleId', 'password', 'fullName'],
         raw: true,
       })
       if (user) {
-        const hash = await handleHashPassword(password)
-        const check = bcrypt.compareSync(password, hash)
+        const check = bcrypt.compareSync(password, user.password)
         if (!check) {
           userData.code = codeApi.CODE_FAIL
           userData.message = `Email hoặc mật khẩu không đúng.`
