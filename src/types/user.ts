@@ -5,7 +5,7 @@ interface user {
 }
 interface UserBody {
   email: string
-  name?: string
+  fullName?: string
   token: string
 }
 interface UserData {

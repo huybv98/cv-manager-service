@@ -13,7 +13,7 @@ const respond = (
   const resBody = {
     code: code,
     message: message || getReasonPhrase(httpCode),
-    body: undefined
+    body: undefined,
   }
   if (data) {
     resBody.body = data

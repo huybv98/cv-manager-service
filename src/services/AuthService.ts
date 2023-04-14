@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { UserData } from '@src/types/user'
+import db from '@src/models/index'
 import codeApi from '@src/constants/code'
-import db from "@src/models";
 
 const handleUserLogin = (email: string, password: string) => {
   return new Promise(async (resolve, reject) => {
@@ -20,10 +20,10 @@ const handleUserLogin = (email: string, password: string) => {
         return
       }
       const user = await db.User.findOne({
-        where: {email: email},
-        attributes : ['email', 'roleId', 'password'],
-        raw : true,
-      });
+        where: { email: email },
+        attributes: ['email', 'roleId', 'password'],
+        raw: true,
+      })
       if (user) {
         const hash = await handleHashPassword(password)
         const check = bcrypt.compareSync(password, hash)
@@ -43,7 +43,7 @@ const handleUserLogin = (email: string, password: string) => {
           userData.message = `Đăng nhập thành công`
           userData.body = {
             email: user.email,
-            name: user.name,
+            fullName: user.fullName,
             token: token,
           }
         }
@@ -58,7 +58,7 @@ const handleUserLogin = (email: string, password: string) => {
   })
 }
 
-const handleUserRegister = (name: string, email: string, password: string) => {
+const handleUserRegister = (fullName: string, email: string, password: string, roleId: number = 1) => {
   return new Promise(async (resolve, reject) => {
     try {
       const userData: UserData = {
@@ -76,23 +76,23 @@ const handleUserRegister = (name: string, email: string, password: string) => {
       // hash password
       password = await handleHashPassword(password)
       // Tạo người dùng mới
-      // const user = new User({
-      //   name,
-      //   email,
-      //   password,
-      // })
-      // await user
-      //   .save()
-      //   .then(() => {
-      //     userData.code = codeApi.CODE_OK
-      //     userData.message = `Đăng ký thành công`
-      //     userData.body = true
-      //   })
-      //   .catch((error) => {
-      //     console.log('Error saving user', error)
-      //     userData.code = codeApi.CODE_FAIL
-      //     userData.message = `Đăng ký thất bại`
-      //   })
+      const newUser = {
+        fullName: fullName,
+        email: email,
+        password: password,
+        roleId: roleId
+      }
+      await db.User.create(newUser)
+          .then(() => {
+            userData.code = codeApi.CODE_OK
+            userData.message = `Đăng ký thành công`
+            userData.body = true
+          })
+          .catch((error) => {
+            console.log('Error saving user', error)
+            userData.code = codeApi.CODE_FAIL
+            userData.message = `Đăng ký thất bại`
+          })
       resolve(userData)
     } catch (e) {
       reject(e)
