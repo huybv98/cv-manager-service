@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import { UserData } from '@src/types/user'
 import db from '@src/models/index'
 import codeApi from '@src/constants/code'
+import messageApi from '@src/constants/message'
 
 const handleUserLogin = (email: string, password: string) => {
   return new Promise(async (resolve, reject) => {
@@ -15,7 +16,7 @@ const handleUserLogin = (email: string, password: string) => {
       const isExist = await checkUserEmail(email)
       if (!isExist) {
         userData.code = codeApi.CODE_FAIL
-        userData.message = `Email hoặc mật khẩu không đúng.`
+        userData.message = messageApi.INVALID_EMAIL_PASSWORD
         resolve(userData)
         return
       }
@@ -28,7 +29,7 @@ const handleUserLogin = (email: string, password: string) => {
         const check = bcrypt.compareSync(password, user.password)
         if (!check) {
           userData.code = codeApi.CODE_FAIL
-          userData.message = `Email hoặc mật khẩu không đúng.`
+          userData.message = messageApi.INVALID_EMAIL_PASSWORD
           resolve(userData)
         } else {
           const payload = {
@@ -39,7 +40,7 @@ const handleUserLogin = (email: string, password: string) => {
 
           const token: string = jwt.sign(payload, process.env.SERVICE_APP_JWT_SECRET!) || ''
           userData.code = codeApi.CODE_OK
-          userData.message = `Đăng nhập thành công`
+          userData.message = messageApi.LOGIN_OK
           userData.body = {
             email: user.email,
             fullName: user.fullName,
@@ -48,7 +49,7 @@ const handleUserLogin = (email: string, password: string) => {
         }
       } else {
         userData.code = codeApi.CODE_FAIL
-        userData.message = `Email hoặc mật khẩu không đúng.`
+        userData.message = messageApi.INVALID_EMAIL_PASSWORD
       }
       resolve(userData)
     } catch (e) {
@@ -62,13 +63,13 @@ const handleUserRegister = (fullName: string, email: string, password: string, r
     try {
       const userData: UserData = {
         code: codeApi.CODE_OK,
-        message: '',
+        message: messageApi.CODE_OK,
         body: undefined,
       }
       const isExist = await checkUserEmail(email)
       if (isExist) {
         userData.code = codeApi.CODE_FAIL
-        userData.message = `Email đã được đăng ký`
+        userData.message = messageApi.EMAIL_EXIST
         resolve(userData)
         return
       }
@@ -84,13 +85,13 @@ const handleUserRegister = (fullName: string, email: string, password: string, r
       await db.User.create(newUser)
         .then(() => {
           userData.code = codeApi.CODE_OK
-          userData.message = `Đăng ký thành công`
+          userData.message = messageApi.REGISTER_OK
           userData.body = true
         })
         .catch((error) => {
           console.log('Error saving user', error)
           userData.code = codeApi.CODE_FAIL
-          userData.message = `Đăng ký thất bại`
+          userData.message = messageApi.REGISTER_FAIL
         })
       resolve(userData)
     } catch (e) {
